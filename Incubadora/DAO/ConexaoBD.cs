@@ -14,6 +14,7 @@ namespace Incubadora.DAO
             SqlConnection conexao = new SqlConnection(strCon);
             conexao.Open();
             return conexao;
+
         }
 
     }
