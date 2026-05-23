@@ -8,22 +8,19 @@ CREATE TABLE Empresas (
     cnpj VARCHAR(18) NOT NULL,
     email VARCHAR(100),
     telefone VARCHAR(20)
-);
+)
 
 -- 2. Tabela de Fazendas (Clientes)
-CREATE TABLE Fazendas (
-    id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+CREATE TABLE Fazenda (
+    fazendaId INT IDENTITY(1,1) PRIMARY KEY,
     nomeFazenda VARCHAR(150) NOT NULL,
     cep VARCHAR(9),
-    logradouro VARCHAR(200),
-    bairro VARCHAR(100),
-    cidade VARCHAR(100),
-    estado VARCHAR(2),
-    proprietario VARCHAR(150),
-    telefone VARCHAR(20),
-    empresaId INT NOT NULL,
-    FOREIGN KEY (empresaId) REFERENCES Empresas(id)
-);
+    ruaFazenda VARCHAR(200),
+    bairroFazenda VARCHAR(100),
+    cidadeFazenda VARCHAR(100),
+    estadoFazenda VARCHAR(2)
+)
+
 
 -- 3. Tabela de Usuários (Controle de Acesso)
 CREATE TABLE Usuarios (
@@ -34,7 +31,7 @@ CREATE TABLE Usuarios (
     tipoUsuario VARCHAR(30) NOT NULL, -- ADMIN_EMPRESA, ADMIN_FAZENDA, FUNCIONARIO
     fazendaId INT NULL, -- Nulo para Admin Empresa
     FOREIGN KEY (fazendaId) REFERENCES Fazendas(id)
-);
+)
 
 -- 4. Tabela de Incubadoras (Hardware)
 CREATE TABLE Incubadoras (
@@ -47,7 +44,7 @@ CREATE TABLE Incubadoras (
     dataInstalacao DATETIME,
     fazendaId INT NOT NULL,
     FOREIGN KEY (fazendaId) REFERENCES Fazendas(id)
-);
+)
 
 -- 5. Tabela de Espécies (Parâmetros de Controle e Imagem)
 CREATE TABLE Especies (
@@ -60,7 +57,7 @@ CREATE TABLE Especies (
     luminosidadeIdeal DECIMAL(6,2),
     tempoIncubacao INT, -- Em dias
     imagemAnimal VARBINARY(MAX) -- Requisito de manipulação de imagem
-);
+)
 
 -- 6. Tabela de Lotes (Produção)
 CREATE TABLE Lotes (
@@ -73,29 +70,64 @@ CREATE TABLE Lotes (
     incubadoraId INT NOT NULL,
     FOREIGN KEY (especieId) REFERENCES Especies(id),
     FOREIGN KEY (incubadoraId) REFERENCES Incubadoras(id)
-);
+)
 GO
 
 -- Procedimento Genérico de Exclusão
-CREATE PROCEDURE spDelete ( @id INT, @tabela VARCHAR(MAX) ) AS 
-BEGIN 
-    EXEC('DELETE FROM ' + @tabela + ' WHERE id = ' + @id) 
-END;
-GO
 
+create procedure spDelete 
+( 
+  @id int  , 
+  @tabela varchar(max) 
+) 
+as 
+begin 
+   declare @sql varchar(max); 
+   set @sql = ' delete ' + @tabela +  
+       ' where id = ' + cast(@id as varchar(max)) 
+   exec(@sql) 
+end 
+ 
+GO 
+ 
 -- Procedimento Genérico de Consulta por ID
-CREATE PROCEDURE spConsulta ( @id INT, @tabela VARCHAR(MAX) ) AS 
-BEGIN 
-    EXEC('SELECT * FROM ' + @tabela + ' WHERE id = ' + @id) 
-END;
-GO
+create procedure spConsulta 
+( 
+  @id int  , 
+  @tabela varchar(max) 
+) 
+as 
+begin 
+   declare @sql varchar(max); 
+   set @sql = 'select * from  ' + @tabela +  
+        ' where id = ' + cast(@id as varchar(max)) 
+   exec(@sql) 
+end 
+GO 
 
 -- Procedimento Genérico de Listagem
-CREATE PROCEDURE spListagem ( @tabela VARCHAR(MAX), @ordem VARCHAR(MAX) ) AS 
-BEGIN 
-    EXEC('SELECT * FROM ' + @tabela + ' ORDER BY ' + @ordem) 
-END;
+create procedure spListagem 
+( 
+   @tabela varchar(max), 
+   @ordem varchar(max)) 
+as 
+begin 
+   exec('select * from ' + @tabela +  
+        ' order by ' + @ordem) 
+end 
+GO 
+
+---Procedimento Genérico de Próximo ID
+create  procedure spProximoId 
+ (@tabela  varchar(max)) 
+as 
+begin 
+     exec('select isnull(max(id) +1, 1) as MAIOR from '  
+          +@tabela) 
+end 
 GO
+
+---
 
 --------------------------------------------
 --SP ESPECIE
@@ -143,14 +175,6 @@ GO
 -------------------------------------
 ---spListagemFazendas
 ------------------------------------------
-CREATE PROCEDURE spListagemFazendas AS
-BEGIN
-    SELECT F.*, E.nomeEmpresa AS NomeEmpresaJoin
-    FROM Fazendas F
-    INNER JOIN Empresas E ON F.empresaId = E.id
-    ORDER BY F.nomeFazenda
-END;
-GO
 
 ---------------------------------------------
 --SP EMPRESAS
@@ -186,51 +210,72 @@ GO
 
 
 ---------------------
-
-CREATE PROCEDURE spInsert_Fazendas (
-    @nomeFazenda VARCHAR(150),
-    @cep VARCHAR(9),
-    @logradouro VARCHAR(200),
-    @bairro VARCHAR(100),
-    @cidade VARCHAR(100),
-    @estado VARCHAR(2),
-    @proprietario VARCHAR(150),
-    @telefone VARCHAR(20),
-    @empresaId INT
-) AS 
+CREATE PROCEDURE spListagemFazendas AS
 BEGIN
-    INSERT INTO Fazendas (nomeFazenda, cep, logradouro, bairro, cidade, estado, proprietario, telefone, empresaId)
-    VALUES (@nomeFazenda, @cep, @logradouro, @bairro, @cidade, @estado, @proprietario, @telefone, @empresaId)
+    SELECT F.*, E.nomeEmpresa AS NomeEmpresaJoin
+    FROM Fazendas F
+    INNER JOIN Empresas E ON F.empresaId = E.id
+    ORDER BY F.nomeFazenda
 END;
 GO
 
-CREATE PROCEDURE spUpdate_Fazendas (
-    @id INT,
+
+CREATE PROCEDURE spInsert_Fazenda
     @nomeFazenda VARCHAR(150),
     @cep VARCHAR(9),
-    @logradouro VARCHAR(200),
-    @bairro VARCHAR(100),
-    @cidade VARCHAR(100),
-    @estado VARCHAR(2),
-    @proprietario VARCHAR(150),
-    @telefone VARCHAR(20),
-    @empresaId INT
-) AS 
+    @ruaFazenda VARCHAR(200),
+    @bairroFazenda VARCHAR(100),
+    @cidadeFazenda VARCHAR(100),
+    @estadoFazenda VARCHAR(2)
+AS
 BEGIN
-    UPDATE Fazendas SET 
+    INSERT INTO Fazenda
+    (
+        nomeFazenda,
+        cep,
+        ruaFazenda,
+        bairroFazenda,
+        cidadeFazenda,
+        estadoFazenda
+    )
+    VALUES
+    (
+        @nomeFazenda,
+        @cep,
+        @ruaFazenda,
+        @bairroFazenda,
+        @cidadeFazenda,
+        @estadoFazenda
+    );
+END;
+GO
+
+
+
+CREATE PROCEDURE spUpdate_Fazenda
+    @fazendaId INT,
+    @nomeFazenda VARCHAR(150),
+    @cep VARCHAR(9),
+    @ruaFazenda VARCHAR(200),
+    @bairroFazenda VARCHAR(100),
+    @cidadeFazenda VARCHAR(100),
+    @estadoFazenda VARCHAR(2)
+AS
+BEGIN
+    UPDATE Fazenda
+    SET
         nomeFazenda = @nomeFazenda,
         cep = @cep,
-        logradouro = @logradouro,
-        bairro = @bairro,
-        cidade = @cidade,
-        estado = @estado,
-        proprietario = @proprietario,
-        telefone = @telefone,
-        empresaId = @empresaId
-    WHERE id = @id
+        ruaFazenda = @ruaFazenda,
+        bairroFazenda = @bairroFazenda,
+        cidadeFazenda = @cidadeFazenda,
+        estadoFazenda = @estadoFazenda
+    WHERE fazendaId = @fazendaId;
 END;
 GO
-----------------------------------------------
+
+
+-----------------------------------------
 CREATE PROCEDURE spInsert_Usuarios (
     @nome VARCHAR(150),
     @email VARCHAR(100),

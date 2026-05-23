@@ -28,6 +28,11 @@ namespace Incubadora
             {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "API Nidus", Version = "v1" });
             });
+            //tempo de sessão
+            services.AddSession(options => {
+                options.IdleTimeout = TimeSpan.FromSeconds(3600); // 1 hora de sessão
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,12 +59,16 @@ namespace Incubadora
 
             app.UseAuthorization();
 
+            app.UseSession();
+
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
         }
     }
 }
