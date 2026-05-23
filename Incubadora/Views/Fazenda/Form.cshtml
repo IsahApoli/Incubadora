@@ -3,6 +3,7 @@
 <h2>Cadastro de Fazenda</h2>
 
 <form asp-action="Save" method="post">
+
     <input type="hidden" asp-for="Id" />
 
     <div>
@@ -10,33 +11,134 @@
         <input asp-for="NomeFazenda" class="form-control" />
     </div>
 
+    <br />
+
     <div>
         <label>CEP</label>
-        <input asp-for="CEP" class="form-control" />
-    </div>
+        <input asp-for="CEP" id="cep" class="form-control" />
 
-    <div>
-        <label>Rua</label>
-        <input asp-for="RuaFazenda" class="form-control" />
-    </div>
+        <br />
 
-    <div>
-        <label>Bairro</label>
-        <input asp-for="BairroFazenda" class="form-control" />
-    </div>
-
-    <div>
-        <label>Cidade</label>
-        <input asp-for="CidadeFazenda" class="form-control" />
-    </div>
-
-    <div>
-        <label>Estado</label>
-        <input asp-for="EstadoFazenda" class="form-control" />
+        <input type="button"
+               value="Buscar CEP"
+               class="btn btn-primary"
+               onclick="buscaCEP()" />
     </div>
 
     <br />
 
-    <button type="submit" class="btn btn-success">Salvar</button>
-    <a href="/Fazenda/Index" class="btn btn-secondary">Voltar</a>
+    <div>
+        <label>Rua</label>
+        <input asp-for="RuaFazenda"
+               id="logradouro"
+               class="form-control" />
+    </div>
+
+    <br />
+
+    <div>
+        <label>Bairro</label>
+        <input asp-for="BairroFazenda"
+               id="bairro"
+               class="form-control" />
+    </div>
+
+    <br />
+
+    <div>
+        <label>Cidade</label>
+        <input asp-for="CidadeFazenda"
+               id="localidade"
+               class="form-control" />
+    </div>
+
+    <br />
+
+    <div>
+        <label>Estado</label>
+        <input asp-for="EstadoFazenda"
+               id="uf"
+               class="form-control" />
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-success">
+        Salvar
+    </button>
+
+    <a href="/Fazenda/Index"
+       class="btn btn-secondary">
+        Voltar
+    </a>
+
 </form>
+
+@section Scripts {
+
+    <script>
+
+        function buscaCEP() {
+
+            var cep = document.getElementById("cep").value;
+
+            cep = cep.replace('-', '');
+
+            if (cep.length > 0) {
+
+                var linkAPI =
+                    'https://viacep.com.br/ws/' +
+                    cep +
+                    '/json/';
+
+                $.ajax({
+
+                    url: linkAPI,
+
+                    beforeSend: function () {
+
+                        document.getElementById("logradouro").value = '...';
+
+                        document.getElementById("bairro").value = '...';
+
+                        document.getElementById("localidade").value = '...';
+
+                        document.getElementById("uf").value = '...';
+                    },
+
+                    success: function (dados) {
+
+                        if (dados.erro != undefined) {
+
+                            alert('CEP não localizado...');
+
+                            document.getElementById("logradouro").value = '';
+
+                            document.getElementById("bairro").value = '';
+
+                            document.getElementById("localidade").value = '';
+
+                            document.getElementById("uf").value = '';
+                        }
+
+                        else {
+
+                            document.getElementById("logradouro").value =
+                                dados.logradouro;
+
+                            document.getElementById("bairro").value =
+                                dados.bairro;
+
+                            document.getElementById("localidade").value =
+                                dados.localidade;
+
+                            document.getElementById("uf").value =
+                                dados.uf;
+                        }
+                    }
+                });
+            }
+        }
+
+    </script>
+}
