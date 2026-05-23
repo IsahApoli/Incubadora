@@ -18,6 +18,7 @@ namespace Incubadora.DAO
         protected abstract SqlParameter[] CriaParametros(T model);
         protected abstract T MontaModel(DataRow registro);
         protected abstract void SetTabela();
+
         public virtual void Insert(T model)
         {
             HelperDAO.ExecutaProc("spInsert_" + Tabela, CriaParametros(model));

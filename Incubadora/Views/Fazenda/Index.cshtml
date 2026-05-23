@@ -1,0 +1,47 @@
+﻿@model List<Incubadora.Models.FazendaViewModel>
+
+<h2>Listagem de Fazendas</h2>
+
+<a href="/Fazenda/Create" class="btn btn-success">
+    Nova Fazenda
+</a>
+
+<br />
+<br />
+
+<table class="table table-responsive">
+    <tr>
+        <th>Ações</th>
+        <th>ID</th>
+        <th>Nome da Fazenda</th>
+        <th>CEP</th>
+        <th>Rua</th>
+        <th>Bairro</th>
+        <th>Cidade</th>
+        <th>Estado</th>
+    </tr>
+
+    @foreach (var fazenda in Model)
+    {
+        <tr>
+            <td>
+                <a href="/Fazenda/Edit?id=@fazenda.Id">
+                    Editar
+                </a>
+                |
+
+                <a href="/Fazenda/Delete?id=@fazenda.Id">
+                    Excluir
+                </a>
+            </td>
+
+            <td>@fazenda.Id</td>
+            <td>@fazenda.NomeFazenda</td>
+            <td>@fazenda.CEP</td>
+            <td>@fazenda.RuaFazenda</td>
+            <td>@fazenda.BairroFazenda</td>
+            <td>@fazenda.CidadeFazenda</td>
+            <td>@fazenda.EstadoFazenda</td>
+        </tr>
+    }
+</table>
