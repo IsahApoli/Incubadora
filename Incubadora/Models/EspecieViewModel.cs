@@ -9,8 +9,10 @@ namespace Incubadora.Models
         public decimal TemperaturaMax { get; set; }
         public decimal UmidadeMin { get; set; }
         public decimal UmidadeMax { get; set; }
-        public decimal LuminosidadeIdeal { get; set; }
+        public decimal LuminosidadeMin { get; set; }
+        public decimal LuminosidadeMax { get; set; }
         public int TempoIncubacao { get; set; }
+
         
         public IFormFile Imagem { get; set; } // Arquivo recebido do formulário
         public byte[] ImagemEmByte { get; set; } // Para salvar no banco
