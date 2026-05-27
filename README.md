@@ -92,7 +92,7 @@ A plataforma web possui:
 * Comunicação assíncrona utilizando **Ajax**;
 * Interface responsiva e intuitiva.
 
-O produtor consegue monitorar diversas incubadoras simultaneamente sem precisar atualizar a página.
+O produtor consegue monitorar sem precisar atualizar a página.
 
 ---
 
