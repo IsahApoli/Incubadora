@@ -51,8 +51,11 @@ O sistema embarcado utiliza:
 * **LEDs** simulando atuadores:
   * Aquecedor
   * Umidificador
+  * Luminosidade
 
 O ESP32 realiza a leitura contínua dos sensores e envia os dados para a plataforma.
+
+Link da simulação: https://wokwi.com/projects/465195256226022401
 
 ---
 
