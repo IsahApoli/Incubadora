@@ -1,0 +1,178 @@
+﻿@model NidusFront.Models.AnimalViewModel
+@{
+    ViewData["Title"] = "Novo Preset de Animal";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/Animal/Animais" class="text-success">Presets</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">Novo Animal</li>
+                </ol>
+            </nav>
+            <h2 class="titulo-pagina m-0"><i class="bi bi-plus-circle-fill me-2"></i> CADASTRAR NOVO ANIMAL</h2>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="edit-card">
+                <form id="formCriarAnimal" action="/Animal/SalvarAnimal" method="post" enctype="multipart/form-data">
+
+                    <input type="hidden" name="Tipo" value="Customizado" />
+
+                    <div class="row g-5">
+                        <div class="col-12 col-lg-4 text-center border-end border-secondary border-opacity-25">
+                            <h5 class="text-white mb-4">Imagem Representativa</h5>
+                            <div class="profile-upload-wrapper">
+                                <div class="profile-preview" id="animalPreview" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1864/1864470.png');">
+                                </div>
+                                <input type="file" name="FotoUpload" id="inputFotoAnimal" hidden accept="image/*">
+                                <button type="button" class="btn btn-sm btn-success mt-3" onclick="document.getElementById('inputFotoAnimal').click()">
+                                    <i class="bi bi-camera-fill me-2"></i> ESCOLHER FOTO
+                                </button>
+                                <p class="text-white opacity-50 small mt-2">Formatos: JPG, PNG. Máx 2MB</p>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-8">
+                            <h5 class="text-white border-bottom border-secondary pb-2 mb-4">Identificação e Parâmetros</h5>
+
+                            <div class="mb-4">
+                                <label class="form-label text-success fw-bold">Nome da Espécie / Raça</label>
+                                <input type="text" name="NomeEspecie" class="form-control custom-input" value="@Model.NomeEspecie" placeholder="Ex: Pavão Real, Tartaruga Tigre d'Água" required>
+                            </div>
+
+                            <div class="row g-4 mt-2">
+                                <div class="col-12 col-md-4">
+                                    <div class="param-box">
+                                        <h6 class="text-warning fw-bold mb-3"><i class="bi bi-thermometer-sun me-1"></i> Temperatura</h6>
+                                        <div class="mb-2">
+                                            <label class="small text-light opacity-75">Mínima (°C)</label>
+                                            <input type="text" name="TempMin" class="form-control custom-input" value="@Model.TempMin" placeholder="00,0" required>
+                                        </div>
+                                        <div>
+                                            <label class="small text-light opacity-75">Máxima (°C)</label>
+                                            <input type="text" name="TempMax" class="form-control custom-input" value="@Model.TempMax" placeholder="00,0" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-4">
+                                    <div class="param-box">
+                                        <h6 class="text-info fw-bold mb-3"><i class="bi bi-droplets-fill me-1"></i> Umidade Relativa</h6>
+                                        <div class="mb-2">
+                                            <label class="small text-light opacity-75">Mínima (%)</label>
+                                            <input type="number" name="UmidMin" class="form-control custom-input" value="@Model.UmidMin" placeholder="0" required>
+                                        </div>
+                                        <div>
+                                            <label class="small text-light opacity-75">Máxima (%)</label>
+                                            <input type="number" name="UmidMax" class="form-control custom-input" value="@Model.UmidMax" placeholder="0" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-4">
+                                    <div class="param-box">
+                                        <h6 class="text-light fw-bold mb-3"><i class="bi bi-brightness-high-fill me-1"></i> Luminosidade</h6>
+                                        <div class="mb-2">
+                                            <label class="small text-light opacity-75">Mínima (Lxs)</label>
+                                            <input type="number" name="LuzMin" class="form-control custom-input" value="@Model.LuzMin" placeholder="0" required>
+                                        </div>
+                                        <div>
+                                            <label class="small text-light opacity-75">Máxima (Lxs)</label>
+                                            <input type="number" name="LuzMax" class="form-control custom-input" value="@Model.LuzMax" placeholder="0" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-5 d-flex gap-3 justify-content-end">
+                                <a href="/Animal/Animais" class="btn btn-outline-light px-4">CANCELAR</a>
+                                <button type="submit" class="btn btn-success px-5 shadow"><i class="bi bi-floppy-fill me-2"></i> SALVAR PRESET</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: url('/images/FundoNidus.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
+
+    .titulo-pagina {
+        color: #164710;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .edit-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 25px;
+        padding: 40px;
+    }
+
+    .profile-preview {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        border: 4px solid #ffc107;
+        margin: 0 auto;
+        background-size: cover;
+        background-position: center;
+        background-color: rgba(255,255,255,0.1);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    .custom-input {
+        background: rgba(0,0,0,0.3) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .param-box {
+        background: rgba(0,0,0,0.15);
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .btn-success {
+        background-color: #164710 !important;
+        border: none !important;
+    }
+
+        .btn-success:hover {
+            background-color: #1e5c15 !important;
+        }
+</style>
+
+<script>
+    // PREVIEW DA FOTO DO ANIMAL
+    document.getElementById('inputFotoAnimal').addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('animalPreview').style.backgroundImage = `url(${event.target.result})`;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+</script>

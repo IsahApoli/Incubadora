@@ -1,0 +1,246 @@
+﻿@model NidusFront.Models.FazendaViewModel
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor Accessor
+@{
+    ViewData["Title"] = "Editar Fazenda";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+    // Verifica quem está logado para aplicar o bloqueio no CNPJ e esconder o botão de excluir
+    string perfilLogado = Accessor.HttpContext?.Session.GetString("UsuarioPerfil") ??
+                          Accessor.HttpContext?.Session.GetString("nidus_perfil") ?? "";
+    bool isAdmin = perfilLogado.ToLower() == "admin";
+}
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/Fazenda/Fazendas" class="text-success">Fazendas</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">Editar Fazenda</li>
+                </ol>
+            </nav>
+            <h2 class="titulo-pagina m-0"><i class="bi bi-building-gear me-2"></i> DADOS DA FAZENDA</h2>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="edit-card">
+                <form id="formEditarFazenda" action="/Fazenda/SalvarFazenda" method="post">
+
+                    <input type="hidden" name="Id" value="@Model.Id" />
+
+                    <h5 class="text-white border-bottom border-secondary pb-2 mb-4">Informações Principais</h5>
+
+                    <div class="row g-4 mb-5">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-success fw-bold">Nome da Fazenda / Incubatório</label>
+                            <input type="text" name="NomeFantasia" class="form-control custom-input" value="@Model.NomeFantasia" required>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-success fw-bold">Responsável Legal</label>
+                            <input type="text" class="form-control custom-input" placeholder="Nome do responsável">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-success fw-bold">CNPJ <small class="text-light fw-normal opacity-50 ms-2" id="avisoCnpj">@(isAdmin ? "" : "(Bloqueado - Contate o suporte)")</small></label>
+                            <input type="text" name="Cnpj" class="form-control custom-input" id="cnpj" value="@Model.Cnpj" maxlength="14" required @(isAdmin ? "" : "readonly")>
+                        </div>
+                    </div>
+
+                    <h5 class="text-white border-bottom border-secondary pb-2 mb-4">Endereço</h5>
+                    <p class="small text-light opacity-50 mb-3">Estes dados são apenas informativos para a tela e não serão salvos no banco de dados da versão atual.</p>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-3">
+                            <label class="small text-success fw-bold">CEP</label>
+                            <input type="text" class="form-control custom-input" id="cep" maxlength="8">
+                        </div>
+                        <div class="col-12 col-md-7">
+                            <label class="small text-success fw-bold">Rua / Logradouro</label>
+                            <input type="text" class="form-control custom-input" id="rua">
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="small text-success fw-bold">Número</label>
+                            <input type="text" class="form-control custom-input" id="numero">
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="small text-success fw-bold">Bairro</label>
+                            <input type="text" class="form-control custom-input" id="bairro">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="small text-success fw-bold">Cidade</label>
+                            <input type="text" class="form-control custom-input" id="cidade">
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="small text-success fw-bold">Estado</label>
+                            <input type="text" class="form-control custom-input" id="estado">
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="small text-success fw-bold">Complemento</label>
+                            <input type="text" class="form-control custom-input" id="complemento">
+                        </div>
+                    </div>
+
+                    <div class="mt-5 d-flex gap-3 justify-content-end align-items-center">
+                        @if (isAdmin)
+                        {
+                            <button type="button" class="btn btn-outline-danger me-auto px-4" onclick="abrirModalDeletar()"><i class="bi bi-trash-fill me-2"></i> EXCLUIR FAZENDA</button>
+                        }
+                        <a href="/Fazenda/Fazendas" class="btn btn-outline-light px-4">CANCELAR</a>
+                        <button type="submit" class="btn btn-success px-5 shadow"><i class="bi bi-floppy-fill me-2"></i> SALVAR DADOS</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDeletarLocal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: rgba(22, 71, 16, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+            <div class="modal-header border-bottom border-secondary border-opacity-50">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i> Excluir Unidade</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="fs-5 mb-2">Tem certeza que deseja apagar os registros da unidade:</p>
+                <h3 class="fw-bold text-warning mb-4">@Model.NomeFantasia</h3>
+                <div class="alert alert-danger text-start p-3 mb-0 border-0" style="background: rgba(220, 53, 69, 0.2);">
+                    <i class="bi bi-info-circle-fill me-2"></i> Todos os dados de incubadoras e histórico vinculados serão perdidos permanentemente.
+                </div>
+            </div>
+            <div class="modal-footer border-top border-secondary border-opacity-50 justify-content-center gap-3">
+                <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger px-4 shadow" onclick="confirmarExclusaoLocal(@Model.Id)"><i class="bi bi-trash-fill me-2"></i> Sim, Excluir Tudo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 2000;">
+    <div id="toastErroCEP" class="toast align-items-center border-0" style="background: rgba(220, 53, 69, 0.95); backdrop-filter: blur(10px); color: #fff;" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fw-bold fs-6" id="mensagemErroCEP">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Erro no CEP!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-3 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: url('/images/FundoNidus.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
+
+    .titulo-pagina {
+        color: #164710;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .edit-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 25px;
+        padding: 40px;
+    }
+
+    .custom-input {
+        background: rgba(0,0,0,0.3) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+        border-radius: 10px;
+        padding: 12px;
+    }
+
+        .custom-input:focus {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.3) !important;
+        }
+
+        .custom-input[readonly] {
+            background: rgba(0,0,0,0.6) !important;
+            cursor: not-allowed;
+        }
+
+    .btn-success {
+        background-color: #164710 !important;
+        border: none !important;
+    }
+
+        .btn-success:hover {
+            background-color: #1e5c15 !important;
+        }
+</style>
+
+<script>
+    let meuModal;
+    function abrirModalDeletar() {
+        meuModal = new bootstrap.Modal(document.getElementById('modalDeletarLocal'));
+        meuModal.show();
+    }
+
+    // REDIRECIONA PARA A CONTROLLER DE EXCLUSÃO
+    function confirmarExclusaoLocal(idFazenda) {
+        meuModal.hide();
+        window.location.href = "/Fazenda/ExcluirFazenda/" + idFazenda;
+    }
+
+    // LÓGICA DO VIA CEP MANTIDA INTACTA
+    function mostrarErroCEP(mensagem) {
+        document.getElementById('mensagemErroCEP').innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> ' + mensagem;
+        const toastEl = document.getElementById('toastErroCEP');
+        const toast = new bootstrap.Toast(toastEl, { delay: 3500 });
+        toast.show();
+    }
+
+    document.getElementById('cep').addEventListener('blur', function() {
+        let cep = this.value.replace(/\D/g, '');
+        if (cep.length === 8) {
+            document.getElementById('rua').value = "...";
+            document.getElementById('bairro').value = "...";
+            document.getElementById('cidade').value = "...";
+            document.getElementById('estado').value = "...";
+
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(resposta => resposta.json())
+                .then(dados => {
+                    if (!dados.erro) {
+                        document.getElementById('rua').value = dados.logradouro;
+                        document.getElementById('bairro').value = dados.bairro;
+                        document.getElementById('cidade').value = dados.localidade;
+                        document.getElementById('estado').value = dados.uf;
+                        document.getElementById('numero').focus();
+                    } else {
+                        mostrarErroCEP("CEP não encontrado na base de dados.");
+                        limparCamposCEP();
+                    }
+                })
+                .catch(erro => {
+                    mostrarErroCEP("Falha na conexão ao buscar o CEP.");
+                    limparCamposCEP();
+                });
+        } else if (cep.length > 0) {
+            mostrarErroCEP("CEP incompleto. Digite os 8 números.");
+            limparCamposCEP();
+        }
+    });
+
+    function limparCamposCEP() {
+        document.getElementById('rua').value = "";
+        document.getElementById('bairro').value = "";
+        document.getElementById('cidade').value = "";
+        document.getElementById('estado').value = "";
+        document.getElementById('cep').value = "";
+    }
+</script>

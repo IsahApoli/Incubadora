@@ -1,0 +1,321 @@
+﻿@{
+    ViewData["Title"] = "Monitoramento NIDUS-01A";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/Fazenda/Fazendas" class="text-success">Fazendas</a></li>
+                    <li class="breadcrumb-item"><a href="/Incubadora/Incubadoras" class="text-success">Vale Verde</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">NIDUS-01A</li>
+                </ol>
+            </nav>
+            <h2 class="titulo-pagina m-0"><i class="bi bi-activity me-2"></i> TELEMETRIA: NIDUS-01A</h2>
+        </div>
+
+        <div class="relogio-card text-end px-4 py-2 rounded-3 shadow">
+            <p class="small text-success fw-bold mb-0 text-uppercase" id="dataAtual">Carregando data...</p>
+            <h4 class="fw-bold text-white mb-0 font-monospace" id="horaAtual">--:--:--</h4>
+            <span class="badge bg-success mt-1 pulse-badge">STATUS: ONLINE</span>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-12 col-lg-4">
+            <div class="kpi-card h-100" style="border-left: 4px solid #ffc107;">
+                <div class="d-flex justify-content-between">
+                    <h6 class="text-warning fw-bold text-uppercase"><i class="bi bi-thermometer-sun fs-5 me-1"></i> Temperatura</h6>
+                    <i class="bi bi-info-circle text-white opacity-50" title="Ideal: 37.2°C a 37.8°C"></i>
+                </div>
+                <div class="my-3">
+                    <h1 class="display-4 fw-bold text-white mb-0">37.5<span class="fs-4 text-white opacity-50">°C</span></h1>
+                </div>
+                <div class="d-flex align-items-center text-success small fw-bold">
+                    <i class="bi bi-check-circle-fill me-1"></i> Dentro do limite padrão
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="kpi-card h-100" style="border-left: 4px solid #0dcaf0;">
+                <div class="d-flex justify-content-between">
+                    <h6 class="text-info fw-bold text-uppercase"><i class="bi bi-droplets-fill fs-5 me-1"></i> Umidade Rel.</h6>
+                    <i class="bi bi-info-circle text-white opacity-50" title="Ideal: 50% a 60%"></i>
+                </div>
+                <div class="my-3">
+                    <h1 class="display-4 fw-bold text-white mb-0">55<span class="fs-4 text-white opacity-50">%</span></h1>
+                </div>
+                <div class="d-flex align-items-center text-warning small fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Variou -2% na última hora
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="kpi-card h-100" style="border-left: 4px solid #f8f9fa;">
+                <div class="d-flex justify-content-between">
+                    <h6 class="text-light fw-bold text-uppercase"><i class="bi bi-brightness-high-fill fs-5 me-1"></i> Luminosidade</h6>
+                    <i class="bi bi-info-circle text-white opacity-50" title="Ideal: 0 a 10 Lxs"></i>
+                </div>
+                <div class="my-3">
+                    <h1 class="display-4 fw-bold text-white mb-0">2<span class="fs-4 text-white opacity-50">Lxs</span></h1>
+                </div>
+                <div class="d-flex align-items-center text-success small fw-bold">
+                    <i class="bi bi-check-circle-fill me-1"></i> Escuridão adequada
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="chart-card">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary border-opacity-50 pb-3">
+                    <h5 class="fw-bold text-white m-0"><i class="bi bi-graph-up text-success me-2"></i> Histórico de Variáveis</h5>
+
+                    <div class="btn-group shadow-sm" role="group" id="botoesFiltroGrafico">
+                        <button type="button" class="btn btn-sm btn-outline-light active" data-periodo="24h">Últimas 24h</button>
+                        <button type="button" class="btn btn-sm btn-outline-light" data-periodo="7d">7 Dias</button>
+                        <button type="button" class="btn btn-sm btn-outline-light" data-periodo="mes">Mês</button>
+                    </div>
+                </div>
+
+                <div style="position: relative; height: 400px; width: 100%;">
+                    <canvas id="graficoMonitoramento"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-start">
+        <a href="/Incubadora/Incubadoras" class="btn btn-outline-light px-4"><i class="bi bi-arrow-left me-2"></i> Voltar para Incubadoras</a>
+    </div>
+
+</div>
+
+<style>
+    body {
+        background: url('/images/FundoNidus.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
+
+    .titulo-pagina {
+        color: #164710;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .relogio-card {
+        background: rgba(0,0,0,0.4);
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+    }
+
+    .kpi-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        border-right: 1px solid rgba(255, 255, 255, 0.15);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 0 20px 20px 0;
+        padding: 25px;
+        transition: transform 0.3s;
+    }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+    .chart-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 30px;
+    }
+
+    .pulse-badge {
+        animation: pulse-animation 2s infinite;
+    }
+
+    /* Coloque dois arrobas para o C# ignorar essa linha */
+    @@keyframes pulse-animation {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // ==========================================
+        // 1. LÓGICA DO RELÓGIO EM TEMPO REAL
+        // ==========================================
+        function atualizarRelogio() {
+            const agora = new Date();
+            const opcoesData = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('dataAtual').innerText = agora.toLocaleDateString('pt-BR', opcoesData);
+            document.getElementById('horaAtual').innerText = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        atualizarRelogio();
+        setInterval(atualizarRelogio, 1000);
+
+
+        // ==========================================
+        // 2. CONFIGURAÇÃO DO GRÁFICO E FILTROS DE TEMPO
+        // ==========================================
+
+        // Dicionário com os dados simulados
+        const dadosSimulados = {
+            '24h': {
+                labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', 'Agora'],
+                temperatura: [37.2, 37.5, 37.6, 37.8, 37.4, 37.5, 37.7, 37.5],
+                umidade: [52, 55, 58, 60, 56, 54, 57, 55],
+                luminosidade: [2, 3, 2, 8, 4, 1, 0, 2]
+            },
+            '7d': {
+                labels: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Hoje'],
+                temperatura: [37.4, 37.5, 37.5, 37.6, 37.3, 37.5, 37.5],
+                umidade: [54, 55, 56, 58, 55, 54, 55],
+                luminosidade: [1, 2, 2, 1, 3, 2, 2]
+            },
+            'mes': {
+                labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+                temperatura: [37.5, 37.4, 37.6, 37.5],
+                umidade: [55, 56, 54, 55],
+                luminosidade: [2, 1, 2, 1]
+            }
+        };
+
+        const ctx = document.getElementById('graficoMonitoramento').getContext('2d');
+
+        let meuGrafico = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dadosSimulados['24h'].labels,
+                datasets: [
+                    {
+                        label: 'Temperatura (°C)',
+                        data: dadosSimulados['24h'].temperatura,
+                        borderColor: '#ffc107',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ffc107',
+                        pointBorderColor: '#fff',
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Umidade (%)',
+                        data: dadosSimulados['24h'].umidade,
+                        borderColor: '#0dcaf0',
+                        backgroundColor: 'transparent',
+                        borderWidth: 3,
+                        borderDash: [5, 5],
+                        pointBackgroundColor: '#0dcaf0',
+                        pointBorderColor: '#fff',
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: 'Luminosidade (Lxs)',
+                        data: dadosSimulados['24h'].luminosidade,
+                        borderColor: '#f8f9fa',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#f8f9fa',
+                        pointBorderColor: '#000',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        tension: 0.3,
+                        yAxisID: 'y2'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { labels: { color: 'rgba(255, 255, 255, 0.8)', font: { size: 14 } } },
+                    tooltip: { backgroundColor: 'rgba(0, 0, 0, 0.8)', titleFont: { size: 14 }, bodyFont: { size: 13 }, padding: 10, cornerRadius: 10 }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                        ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+                    },
+                    y: {
+                        type: 'linear', display: true, position: 'left',
+                        title: { display: true, text: 'Temp. (°C)', color: '#ffc107' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: 'rgba(255, 255, 255, 0.6)' },
+                        suggestedMin: 35, suggestedMax: 40
+                    },
+                    y1: {
+                        type: 'linear', display: true, position: 'right',
+                        title: { display: true, text: 'Umidade (%)', color: '#0dcaf0' },
+                        grid: { drawOnChartArea: false },
+                        ticks: { color: 'rgba(255, 255, 255, 0.6)' },
+                        suggestedMin: 30, suggestedMax: 80
+                    },
+                    y2: {
+                        type: 'linear', display: false, position: 'right',
+                        suggestedMin: 0, suggestedMax: 20
+                    }
+                }
+            }
+        });
+
+        // Evento de clique para trocar os dados do gráfico
+        const botoesFiltro = document.querySelectorAll('#botoesFiltroGrafico .btn');
+
+        botoesFiltro.forEach(botao => {
+            botao.addEventListener('click', function() {
+                botoesFiltro.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const periodoEscolhido = this.getAttribute('data-periodo');
+                const novosDados = dadosSimulados[periodoEscolhido];
+
+                meuGrafico.data.labels = novosDados.labels;
+                meuGrafico.data.datasets[0].data = novosDados.temperatura;
+                meuGrafico.data.datasets[1].data = novosDados.umidade;
+                meuGrafico.data.datasets[2].data = novosDados.luminosidade;
+
+                meuGrafico.update();
+            });
+        });
+
+    });
+</script>

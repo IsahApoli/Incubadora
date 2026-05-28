@@ -1,0 +1,164 @@
+﻿@model NidusFront.Models.UsuarioViewModel
+@{
+    ViewData["Title"] = "Editar Usuário";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/Usuario/Logins" class="text-success">Gestão de Acessos</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">Editar Usuário</li>
+                </ol>
+            </nav>
+            <h2 class="titulo-pagina m-0"><i class="bi bi-pencil-square me-2"></i> EDITAR CONTA DE CLIENTE</h2>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-xl-8">
+            <div class="edit-card">
+                <form action="/Usuario/SalvarLogin" method="post">
+
+                    <input type="hidden" name="Id" value="@Model.Id" />
+
+                    <div class="mb-4">
+                        <label class="form-label text-success fw-bold">Nome do Cliente / Proprietário</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-dark border-secondary text-white"><i class="bi bi-person-fill"></i></span>
+                            <input type="text" name="Nome" class="form-control custom-input" value="@Model.Nome" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-success fw-bold">E-mail (Login)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary text-white"><i class="bi bi-envelope-fill"></i></span>
+                                <input type="email" name="Email" class="form-control custom-input" value="@Model.Email" required>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-success fw-bold">Celular (com DDD)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary text-white"><i class="bi bi-telephone-fill"></i></span>
+                                <input type="text" name="Celular" class="form-control custom-input" value="@Model.Celular" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-success fw-bold">Nova Senha (Opcional)</label>
+                            <input type="password" name="Senha" class="form-control custom-input" placeholder="Deixe em branco para manter">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-warning fw-bold">Perfil de Acesso</label>
+                            <select name="Perfil" id="selectPerfil" class="form-select custom-input text-warning" required>
+                                <option value="Cliente" selected="@(Model.Perfil == "Cliente")">Cliente</option>
+                                <option value="Admin" selected="@(Model.Perfil == "Admin")">Administrador</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary my-4">
+
+                    <div class="mb-5" id="blocoCnpj" style="display: @(Model.Perfil == "Admin" ? "none" : "block")">
+                        <label class="form-label text-warning fw-bold fs-5 mb-3"><i class="bi bi-link-45deg me-1"></i> Vínculo de Empresa</label>
+                        <div>
+                            <label class="small text-light opacity-75 mb-1">CNPJ Associado (Filtro de Fazendas)</label>
+                            <input type="text" name="CnpjCpf" id="inputCnpj" class="form-control custom-input-lg" value="@Model.Cnpj" maxlength="14" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required="@(Model.Perfil != "Admin")">
+                            <small class="text-white opacity-50 mt-1 d-block">Este CNPJ define quais fazendas o cliente poderá visualizar.</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-end">
+                        <a href="/Usuario/Logins" class="btn btn-outline-light px-4">CANCELAR</a>
+                        <button type="submit" class="btn btn-success px-5 shadow"><i class="bi bi-floppy-fill me-2"></i> SALVAR ALTERAÇÕES</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: url('/images/FundoNidus.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
+
+    .titulo-pagina {
+        color: #164710;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .edit-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 25px;
+        padding: 40px;
+    }
+
+    .custom-input {
+        background: rgba(0,0,0,0.3) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+        .custom-input:focus {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.3) !important;
+        }
+
+    .custom-input-lg {
+        background: rgba(0,0,0,0.4) !important;
+        border: 1px solid #ffc107 !important;
+        color: #ffc107 !important;
+        padding: 15px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 10px;
+    }
+
+    .input-group-text {
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 10px 0 0 10px;
+    }
+
+    .btn-success {
+        background-color: #164710 !important;
+        border: none !important;
+    }
+
+        .btn-success:hover {
+            background-color: #1e5c15 !important;
+        }
+</style>
+
+<script>
+    // Lógica para esconder o CNPJ se mudar para Admin
+    document.getElementById('selectPerfil').addEventListener('change', function() {
+        const blocoCnpj = document.getElementById('blocoCnpj');
+        const inputCnpj = document.getElementById('inputCnpj');
+
+        if (this.value === 'Admin') {
+            blocoCnpj.style.display = 'none';
+            inputCnpj.removeAttribute('required');
+        } else {
+            blocoCnpj.style.display = 'block';
+            inputCnpj.setAttribute('required', 'required');
+        }
+    });
+</script>

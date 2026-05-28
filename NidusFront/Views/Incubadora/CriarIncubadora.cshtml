@@ -1,0 +1,160 @@
+﻿@model NidusFront.Models.IncubadoraViewModel
+@{
+    ViewData["Title"] = "Nova Incubadora";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/Fazenda/Fazendas" class="text-success">Fazendas</a></li>
+                    <li class="breadcrumb-item"><a href="/Incubadora/Incubadoras" class="text-success">Incubadoras</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">Nova Incubadora</li>
+                </ol>
+            </nav>
+            <h2 class="titulo-pagina m-0"><i class="bi bi-plus-circle-fill me-2"></i> CADASTRAR EQUIPAMENTO</h2>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-8">
+            <div class="edit-card">
+                <form id="formCriarIncubadora" action="/Incubadora/SalvarIncubadora" method="post">
+
+                    @if (ViewBag.Erro != null)
+                    {
+                        <div class="alert alert-danger mb-4">@ViewBag.Erro</div>
+                    }
+
+                    <h5 class="text-white border-bottom border-secondary pb-2 mb-4">Identificação e Estado</h5>
+                    <div class="row g-4 mb-5">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-success fw-bold">Nome / Apelido da Incubadora</label>
+                            <input type="text" name="NomeIncubadora" class="form-control custom-input" value="@Model?.NomeIncubadora" placeholder="Ex: NIDUS-01A" required>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label text-success fw-bold">Quantidade de Ovos</label>
+                            <input type="number" name="QuantidadeOvos" class="form-control custom-input" value="@(Model?.QuantidadeOvos == 0 ? "" : Model?.QuantidadeOvos)" placeholder="0" min="0" max="5" required>
+                            <small class="text-white opacity-50 mt-1 d-block">Capacidade: 0 a 5 ovos.</small>
+                            @Html.ValidationMessage("QuantidadeOvos", "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label text-success fw-bold">Status Inicial</label>
+                            <select name="Status" class="form-select custom-input" required>
+                                <option value="Ativa" selected>Ativa</option>
+                                <option value="Inativa">Inativa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h5 class="text-white border-bottom border-secondary pb-2 mb-4">Configuração de Incubação</h5>
+                    <div class="row g-4 mb-5">
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-warning fw-bold fs-5 mb-3"><i class="bi bi-person-fill me-1"></i> Usuário Responsável</label>
+                            <select name="IdUsuario" class="form-select custom-input-lg" required>
+                                <option value="" selected disabled>Selecione o proprietário...</option>
+                                @if (ViewBag.Usuarios != null)
+                                {
+                                    foreach (var usuario in ViewBag.Usuarios)
+                                    {
+                                        <option value="@usuario.Id">@usuario.Nome (@usuario.Perfil)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-info fw-bold fs-5 mb-3"><i class="bi bi-clipboard2-data-fill me-1"></i> Preset de Animal</label>
+                            <select name="IdAnimal" class="form-select custom-input-lg" style="border-color: #0dcaf0; color: #0dcaf0;" required>
+                                <option value="" selected disabled>Selecione a espécie incubada...</option>
+                                @if (ViewBag.Animais != null)
+                                {
+                                    foreach (var animal in ViewBag.Animais)
+                                    {
+                                        <option value="@animal.Id">@animal.NomeEspecie</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <small class="text-white opacity-50 mt-2 d-block">As metas de temperatura e umidade serão carregadas automaticamente com base no animal selecionado.</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-end">
+                        <a href="/Incubadora/Incubadoras" class="btn btn-outline-light px-4">CANCELAR</a>
+                        <button type="submit" class="btn btn-success px-5 shadow"><i class="bi bi-check-lg me-2"></i> SALVAR EQUIPAMENTO</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: url('/images/FundoNidus.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
+
+    .titulo-pagina {
+        color: #164710;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .edit-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 25px;
+        padding: 40px;
+    }
+
+    .custom-input {
+        background: rgba(0,0,0,0.3) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+        .custom-input:focus {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.3) !important;
+        }
+
+    .custom-input-lg {
+        background: rgba(0,0,0,0.4) !important;
+        border: 1px solid #ffc107 !important;
+        color: #ffc107 !important;
+        padding: 15px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+        .custom-input-lg option {
+            background: #222;
+            color: #fff;
+        }
+
+    .btn-success {
+        background-color: #164710 !important;
+        border: none !important;
+    }
+
+        .btn-success:hover {
+            background-color: #1e5c15 !important;
+        }
+</style>

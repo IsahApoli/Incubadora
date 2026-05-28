@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NidusFront", "NidusFront\NidusFront.csproj", "{6E29F2BE-DDEE-4237-878F-A6FE02F7E43A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6E29F2BE-DDEE-4237-878F-A6FE02F7E43A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E29F2BE-DDEE-4237-878F-A6FE02F7E43A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E29F2BE-DDEE-4237-878F-A6FE02F7E43A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E29F2BE-DDEE-4237-878F-A6FE02F7E43A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {89FB034C-0059-40C0-9A13-C98B495F773F}
+	EndGlobalSection
+EndGlobal

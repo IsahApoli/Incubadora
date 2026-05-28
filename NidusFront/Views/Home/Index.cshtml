@@ -1,0 +1,131 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="login-page-container">
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <img src="~/images/LogoNidus.png" alt="NIDUS Logo" class="login-logo" />
+        </div>
+
+        @if (ViewBag.Erro != null)
+        {
+            <div class="alert alert-danger text-center fw-bold py-2 w-100" style="border-radius: 10px;" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @ViewBag.Erro
+            </div>
+        }
+
+        <form action="/Home/FazLogin" method="post" class="w-100">
+            <div class="mb-3">
+                <label for="Email" class="form-label text-white">E-mail</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark text-white border-secondary">
+                        <i class="bi bi-person-fill"></i>
+                    </span>
+                    <input type="email" name="Email" class="form-control bg-dark text-white border-secondary placeholder-gray" id="Email" placeholder="Digite seu e-mail" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="Senha" class="form-label text-white">Senha</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark text-white border-secondary">
+                        <i class="bi bi-lock-fill"></i>
+                    </span>
+                    <input type="password" name="Senha" class="form-control bg-dark text-white border-secondary placeholder-gray" id="Senha" placeholder="Digite sua senha" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 fw-bold btn-entrar">ENTRAR</button>
+        </form>
+    </div>
+
+    <div class="footer-btn-container">
+        <a href="/Home/Privacy" class="btn btn-outline-light px-4 btn-sobre">SOBRE</a>
+    </div>
+</div>
+
+<style>
+    /* Configuração do fundo */
+    body {
+        background: url('/images/FundoNidus.png') no-repeat center center fixed;
+        background-size: cover;
+        height: 100vh;
+    }
+
+    /* Remove as margens padrões que o Visual Studio cria para a página sumir com o fundo */
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    main {
+        padding-bottom: 0 !important;
+    }
+
+    /* Container que centraliza o card de login na tela */
+    .login-page-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        width: 100%;
+        padding: 20px;
+    }
+
+    /* Efeito de Vidro Transparente (Glassmorphism) */
+    .login-card {
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 40px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Ajuste do tamanho da logo */
+    .login-logo {
+        max-width: 350px;
+        height: auto;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+
+    /* Cor customizada para os textos de ajuda (placeholder) */
+    .placeholder-gray::placeholder {
+        color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Botão Entrar Verde Tech */
+    .btn-entrar {
+        background-color: white !important;
+        border-color: white !important;
+        color: #000 !important;
+        transition: 0.3s;
+    }
+
+        .btn-entrar:hover {
+            background-color: #20a497 !important;
+            box-shadow: 0 0 15px rgba(46, 196, 182, 0.6);
+        }
+
+    /* Botão Sobre lá embaixo */
+    .footer-btn-container {
+        margin-top: 15px;
+    }
+
+    .btn-sobre {
+        border-radius: 20px;
+        border-color: rgba(255,255,255,0.5);
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

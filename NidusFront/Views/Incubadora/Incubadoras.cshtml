@@ -1,0 +1,398 @@
+﻿@model List<NidusFront.Models.IncubadoraViewModel>
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor Accessor
+@{
+    ViewData["Title"] = "Incubadoras";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+    // Identifica o perfil logado para aplicar as travas visuais
+    string perfilLogado = Accessor.HttpContext?.Session.GetString("UsuarioPerfil") ??
+                          Accessor.HttpContext?.Session.GetString("nidus_perfil") ?? "";
+    bool isAdmin = perfilLogado.ToLower() == "admin";
+}
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/Fazenda/Fazendas" class="text-success">Fazendas</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">Unidade</li>
+                </ol>
+            </nav>
+            <h2 class="titulo-pagina m-0"><i class="bi bi-thermometer-half me-2"></i> INCUBADORAS</h2>
+        </div>
+
+        @if (isAdmin)
+        {
+            <a href="/Incubadora/CriarIncubadora" class="btn btn-success px-4 shadow d-flex align-items-center">
+                <i class="bi bi-plus-lg me-2"></i> NOVA INCUBADORA
+            </a>
+        }
+    </div>
+
+    <div class="d-flex gap-2 mb-4 justify-content-start overflow-auto py-2">
+        <button class="btn btn-filtro active shadow-sm" data-filtro="todas"><i class="bi bi-grid-fill me-1"></i> Todas</button>
+        <button class="btn btn-filtro shadow-sm" data-filtro="ativas"><i class="bi bi-check-circle-fill me-1 text-success"></i> Apenas Ativas</button>
+        <button class="btn btn-filtro shadow-sm" data-filtro="inativas"><i class="bi bi-dash-circle-fill me-1 text-danger"></i> Apenas Inativas</button>
+    </div>
+
+    <div class="row g-4" id="gridIncubadoras">
+
+        @foreach (var inc in Model)
+        {
+            bool isAtiva = inc.Status == "Ativa";
+
+            <div class="col-12 col-md-6 col-lg-4 item-incubadora">
+                <div class="incubadora-card @(!isAtiva ? "border-alerta" : "")">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <span class="badge-tipo ave"><i class="bi bi-egg-fill me-1"></i> @inc.AnimalVinculado?.ToUpper()</span>
+
+                        <div class="form-check form-switch d-flex align-items-center gap-2">
+                            <input class="form-check-input custom-switch toggle-status" type="checkbox" id="switch_@inc.Id" @(isAtiva ? "checked" : "")>
+                            <label class="form-check-label small label-status @(isAtiva ? "text-white" : "text-danger")" for="switch_@inc.Id">
+                                @(isAtiva ? "ATIVA" : "INATIVA")
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="foto-animal-mini">
+                            @if (!string.IsNullOrEmpty(inc.FotoAnimalBase64))
+                            {
+                                <img src="data:image/jpeg;base64,@inc.FotoAnimalBase64" alt="@inc.AnimalVinculado">
+                            }
+                            else
+                            {
+                                <img src="https://cdn-icons-png.flaticon.com/512/1864/1864470.png" alt="Animal">
+                            }
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-0 @(!isAtiva ? "text-warning" : "")">@inc.NomeIncubadora</h3>
+                            <p class="text-light opacity-50 small mb-0">Resp: @inc.Responsavel | @inc.QuantidadeOvos/5 Ovos</p>
+                        </div>
+                    </div>
+
+                    <div class="sensor-grid mb-4">
+                        <div class="sensor-item">
+                            <i class="bi bi-thermometer-sun @(!isAtiva ? "text-danger" : "text-warning")"></i>
+                            <div>
+                                <span class="sensor-value @(!isAtiva ? "text-danger" : "")">--.-°C</span>
+                                <p class="sensor-label">Temperatura</p>
+                            </div>
+                        </div>
+                        <div class="sensor-item">
+                            <i class="bi bi-droplets-fill text-info"></i>
+                            <div>
+                                <span class="sensor-value">--%</span>
+                                <p class="sensor-label">Umidade</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="/Home/Monitoramento?id=@inc.Id" class="btn btn-primary flex-grow-1"><i class="bi bi-graph-up me-2"></i> MONITORAR</a>
+                        <a href="/Incubadora/EditarIncubadora/@inc.Id" class="btn btn-outline-warning"><i class="bi bi-pencil"></i></a>
+
+                        @if (isAdmin)
+                        {
+                            <button class="btn btn-outline-danger" onclick="prepararExclusaoIncubadora(@inc.Id, '@inc.NomeIncubadora')"><i class="bi bi-trash"></i></button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Count == 0)
+        {
+            <div class="col-12 text-center text-secondary py-5">
+                <p>Nenhuma incubadora vinculada ao sistema.</p>
+            </div>
+        }
+
+    </div>
+</div>
+
+<div class="modal fade" id="modalExcluirIncubadora" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: rgba(22, 71, 16, 0.95); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+            <div class="modal-header border-bottom border-secondary border-opacity-50">
+                <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i> Remover Equipamento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="fs-5 mb-2">Deseja desvincular e excluir permanentemente a incubadora:</p>
+                <h3 class="fw-bold text-warning mb-4" id="nomeIncubadoraAlvo">Nome da Incubadora</h3>
+            </div>
+            <div class="modal-footer border-top border-secondary border-opacity-50 justify-content-center gap-3">
+                <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger px-4 shadow" onclick="confirmarExclusaoIncubadora()"><i class="bi bi-trash-fill me-2"></i> Excluir Dispositivo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: url('/images/FundoNidus.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
+
+    .titulo-pagina {
+        color: #164710;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    /* ESTILOS DOS BOTÕES DE FILTRO */
+    .btn-filtro {
+        background: rgba(0, 0, 0, 0.3);
+        color: rgba(255,255,255,0.7);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 30px;
+        padding: 8px 25px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+        .btn-filtro:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .btn-filtro.active {
+            background: #164710;
+            color: #fff;
+            border-color: #28a745;
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.4) !important;
+        }
+
+    .item-incubadora {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .incubadora-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 25px;
+        color: #fff;
+        transition: 0.3s;
+        height: 100%;
+    }
+
+        .incubadora-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-5px);
+        }
+
+    .border-alerta {
+        border: 1px solid rgba(255, 193, 7, 0.4) !important;
+        box-shadow: 0 0 15px rgba(255, 193, 7, 0.1);
+    }
+
+    .badge-tipo {
+        font-size: 0.7rem;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+    .ave {
+        background: #e67e22;
+        color: #fff;
+    }
+
+    .reptil {
+        background: #27ae60;
+        color: #fff;
+    }
+
+    .foto-animal-mini {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 2px solid #164710;
+        overflow: hidden;
+        background: rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .foto-animal-mini img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .custom-switch {
+        cursor: pointer;
+        width: 3rem !important;
+        height: 1.5rem !important;
+    }
+
+    .form-check-input:checked {
+        background-color: #27ae60 !important;
+        border-color: #27ae60 !important;
+    }
+
+    .sensor-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        background: rgba(0,0,0,0.2);
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .sensor-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .sensor-item i {
+            font-size: 1.5rem;
+        }
+
+    .sensor-value {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .sensor-label {
+        margin: 0;
+        font-size: 0.7rem;
+        opacity: 0.6;
+        text-transform: uppercase;
+    }
+
+    .btn-primary {
+        background-color: #164710 !important;
+        border: none !important;
+        font-weight: 600;
+    }
+
+        .btn-primary:hover {
+            background-color: #1e5c15 !important;
+        }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Lógica do Filtro
+        const botoesFiltro = document.querySelectorAll('.btn-filtro');
+        const itensIncubadora = document.querySelectorAll('.item-incubadora');
+
+        botoesFiltro.forEach(botao => {
+            botao.addEventListener('click', function() {
+                botoesFiltro.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const filtro = this.getAttribute('data-filtro');
+
+                itensIncubadora.forEach(item => {
+                    const isAtiva = item.querySelector('.toggle-status').checked;
+
+                    if (filtro === 'todas') {
+                        item.classList.remove('d-none');
+                    } else if (filtro === 'ativas' && isAtiva) {
+                        item.classList.remove('d-none');
+                    } else if (filtro === 'inativas' && !isAtiva) {
+                        item.classList.remove('d-none');
+                    } else {
+                        item.classList.add('d-none');
+                    }
+                });
+            });
+        });
+
+        // Lógica do Switch Dinâmico + Comando FIWARE
+        const switches = document.querySelectorAll('.toggle-status');
+        console.log('[NIDUS] Switches encontrados:', switches.length);
+        switches.forEach(sw => {
+            sw.addEventListener('change', async function() {
+                const label = this.nextElementSibling;
+                const acao = this.checked ? 'ligar' : 'desligar';
+                console.log('[NIDUS] Toggle mudou! Acao:', acao);
+
+                // Desabilita o switch enquanto envia o comando
+                this.disabled = true;
+                label.innerText = "ENVIANDO...";
+                label.className = "form-check-label small label-status text-warning";
+
+                try {
+                    console.log('[NIDUS] Enviando fetch POST /api/fiware/' + acao);
+                    const resp = await fetch('/api/fiware/' + acao, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await resp.text();
+                    console.log('[NIDUS] Resposta:', resp.status, data);
+
+                    if (resp.ok) {
+                        if (this.checked) {
+                            label.innerText = "ATIVA";
+                            label.className = "form-check-label small label-status text-white";
+                        } else {
+                            label.innerText = "INATIVA";
+                            label.className = "form-check-label small label-status text-danger";
+                        }
+                    } else {
+                        // Reverte o switch se o comando falhou
+                        this.checked = !this.checked;
+                        label.innerText = this.checked ? "ATIVA" : "INATIVA";
+                        label.className = this.checked
+                            ? "form-check-label small label-status text-white"
+                            : "form-check-label small label-status text-danger";
+                        alert('Erro FIWARE (' + resp.status + '): ' + data);
+                    }
+                } catch (err) {
+                    console.log('[NIDUS] ERRO fetch:', err);
+                    // Reverte o switch se deu erro de conexao
+                    this.checked = !this.checked;
+                    label.innerText = this.checked ? "ATIVA" : "INATIVA";
+                    label.className = this.checked
+                        ? "form-check-label small label-status text-white"
+                        : "form-check-label small label-status text-danger";
+                    alert('Erro de conexao: ' + err.message);
+                }
+
+                this.disabled = false;
+
+                const filtroAtivo = document.querySelector('.btn-filtro.active');
+                if(filtroAtivo) filtroAtivo.click();
+            });
+        });
+    });
+
+    // LÓGICA DO MODAL CONECTADA AO C#
+    let modalIncubadora;
+    let idIncubadoraParaExcluir = 0;
+
+    function prepararExclusaoIncubadora(id, nome) {
+        idIncubadoraParaExcluir = id;
+        document.getElementById('nomeIncubadoraAlvo').innerText = nome;
+        modalIncubadora = new bootstrap.Modal(document.getElementById('modalExcluirIncubadora'));
+        modalIncubadora.show();
+    }
+
+    function confirmarExclusaoIncubadora() {
+        modalIncubadora.hide();
+        window.location.href = "/Incubadora/ExcluirIncubadora/" + idIncubadoraParaExcluir;
+    }
+</script>

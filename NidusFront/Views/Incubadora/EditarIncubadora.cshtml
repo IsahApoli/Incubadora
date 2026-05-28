@@ -1,0 +1,245 @@
+﻿@model NidusFront.Models.IncubadoraViewModel
+@{
+    ViewData["Title"] = "Editar Incubadora";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/Fazenda/Fazendas" class="text-success">Fazendas</a></li>
+                    <li class="breadcrumb-item"><a href="/Incubadora/Incubadoras" class="text-success">Incubadoras</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">Editar Equipamento</li>
+                </ol>
+            </nav>
+            <h2 class="titulo-pagina m-0"><i class="bi bi-pencil-square me-2"></i> ALTERAR EQUIPAMENTO</h2>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="edit-card">
+                <form id="formEditarIncubadora" action="/Incubadora/SalvarIncubadora" method="post">
+
+                    <input type="hidden" name="Id" value="@Model.Id" />
+
+                    @if (ViewBag.Erro != null)
+                    {
+                        <div class="alert alert-danger mb-4">@ViewBag.Erro</div>
+                    }
+
+                    <h5 class="text-white border-bottom border-secondary pb-2 mb-4">Identificação e Estado</h5>
+                    <div class="row g-4 mb-4">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-success fw-bold">Nome / Apelido da Incubadora</label>
+                            <input type="text" name="NomeIncubadora" class="form-control custom-input" value="@Model.NomeIncubadora" required>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label text-success fw-bold">Quantidade de Ovos</label>
+                            <input type="number" name="QuantidadeOvos" class="form-control custom-input" value="@Model.QuantidadeOvos" min="0" max="5" required>
+                            <small class="text-white opacity-50 mt-1 d-block">Capacidade: 0 a 5 ovos.</small>
+                            @Html.ValidationMessage("QuantidadeOvos", "", new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label text-success fw-bold">Status de Operação</label>
+                            <select name="Status" class="form-select custom-input" required>
+                                <option value="Ativa" selected="@(Model.Status == "Ativa")">Ativa</option>
+                                <option value="Inativa" selected="@(Model.Status == "Inativa")">Inativa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h5 class="text-white border-bottom border-secondary pb-2 mb-4 mt-5">Vínculos do Sistema</h5>
+                    <div class="row g-4 mb-4">
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-warning fw-bold fs-5 mb-2"><i class="bi bi-person-fill me-1"></i> Usuário Responsável</label>
+                            <select name="IdUsuario" class="form-select custom-input-lg" required>
+                                <option value="" disabled>Selecione o proprietário...</option>
+                                @if (ViewBag.Usuarios != null)
+                                {
+                                    foreach (var usuario in ViewBag.Usuarios)
+                                    {
+                                        <option value="@usuario.Id" selected="@(Model.IdUsuario == usuario.Id)">@usuario.Nome (@usuario.Perfil)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-info fw-bold fs-5 mb-2"><i class="bi bi-clipboard2-data-fill me-1"></i> Preset de Animal Ativo</label>
+                            <select name="IdAnimal" id="selectAnimalIncubadora" class="form-select custom-input-lg" style="border-color: #0dcaf0; color: #0dcaf0;" required>
+                                <option value="" disabled>Selecione a espécie incubada...</option>
+                                @if (ViewBag.Animais != null)
+                                {
+                                    foreach (var animal in ViewBag.Animais)
+                                    {
+                                        <option value="@animal.Id" selected="@(Model.IdAnimal == animal.Id)">@animal.NomeEspecie</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <h5 class="text-white border-bottom border-secondary pb-2 mb-2">Parâmetros do Preset Selecionado</h5>
+                    <p class="small text-white opacity-50 mb-4"><i class="bi bi-info-circle me-1"></i> Os limites abaixo são herdados do preset e não podem ser editados nesta tela.</p>
+
+                    <div class="row g-4 mb-5">
+                        <div class="col-12 col-md-4">
+                            <div class="param-box readonly-box">
+                                <h6 class="text-warning fw-bold mb-3"><i class="bi bi-thermometer-sun me-1"></i> Temperatura</h6>
+                                <div class="mb-2">
+                                    <label class="small text-light opacity-50">Mínima (°C)</label>
+                                    <input type="text" id="tempMin" class="form-control custom-input bg-transparent border-secondary text-white opacity-75" readonly>
+                                </div>
+                                <div>
+                                    <label class="small text-light opacity-50">Máxima (°C)</label>
+                                    <input type="text" id="tempMax" class="form-control custom-input bg-transparent border-secondary text-white opacity-75" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <div class="param-box readonly-box">
+                                <h6 class="text-info fw-bold mb-3"><i class="bi bi-droplets-fill me-1"></i> Umidade Relativa</h6>
+                                <div class="mb-2">
+                                    <label class="small text-light opacity-50">Mínima (%)</label>
+                                    <input type="number" id="umidMin" class="form-control custom-input bg-transparent border-secondary text-white opacity-75" readonly>
+                                </div>
+                                <div>
+                                    <label class="small text-light opacity-50">Máxima (%)</label>
+                                    <input type="number" id="umidMax" class="form-control custom-input bg-transparent border-secondary text-white opacity-75" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <div class="param-box readonly-box">
+                                <h6 class="text-light fw-bold mb-3"><i class="bi bi-brightness-high-fill me-1"></i> Luminosidade</h6>
+                                <div class="mb-2">
+                                    <label class="small text-light opacity-50">Mínima (Lxs)</label>
+                                    <input type="number" id="luzMin" class="form-control custom-input bg-transparent border-secondary text-white opacity-75" readonly>
+                                </div>
+                                <div>
+                                    <label class="small text-light opacity-50">Máxima (Lxs)</label>
+                                    <input type="number" id="luzMax" class="form-control custom-input bg-transparent border-secondary text-white opacity-75" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-end">
+                        <a href="/Incubadora/Incubadoras" class="btn btn-outline-light px-4">CANCELAR</a>
+                        <button type="submit" class="btn btn-success px-5 shadow"><i class="bi bi-floppy-fill me-2"></i> SALVAR ALTERAÇÕES</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: url('/images/FundoNidus.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
+
+    .titulo-pagina {
+        color: #164710;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .edit-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 25px;
+        padding: 40px;
+    }
+
+    .custom-input {
+        background: rgba(0,0,0,0.3) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+        .custom-input:focus {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.3) !important;
+        }
+
+    .custom-input-lg {
+        background: rgba(0,0,0,0.4) !important;
+        border: 1px solid #ffc107 !important;
+        color: #ffc107 !important;
+        padding: 15px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+        .custom-input-lg option {
+            background: #222;
+            color: #fff;
+        }
+
+    .param-box {
+        background: rgba(0,0,0,0.15);
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .readonly-box {
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .btn-success {
+        background-color: #164710 !important;
+        border: none !important;
+    }
+
+        .btn-success:hover {
+            background-color: #1e5c15 !important;
+        }
+</style>
+
+<script>
+    // Converte a lista de animais do C# para JavaScript
+    const animaisData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.Animais));
+
+    function atualizarParametros() {
+        const select = document.getElementById('selectAnimalIncubadora');
+        const animalId = parseInt(select.value);
+
+        // Procura o animal selecionado na lista
+        const animalSelecionado = animaisData.find(a => a.Id === animalId);
+
+        if (animalSelecionado) {
+            document.getElementById('tempMin').value = animalSelecionado.TempMin;
+            document.getElementById('tempMax').value = animalSelecionado.TempMax;
+            document.getElementById('umidMin').value = animalSelecionado.UmidMin;
+            document.getElementById('umidMax').value = animalSelecionado.UmidMax;
+            document.getElementById('luzMin').value = animalSelecionado.LuzMin;
+            document.getElementById('luzMax').value = animalSelecionado.LuzMax;
+        }
+    }
+
+    // Atualiza quando o usuário muda o Select
+    document.getElementById('selectAnimalIncubadora').addEventListener('change', atualizarParametros);
+
+    // Atualiza na hora que a página carrega pra preencher os valores do animal que já estava salvo
+    document.addEventListener('DOMContentLoaded', atualizarParametros);
+</script>

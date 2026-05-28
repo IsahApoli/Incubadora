@@ -1,0 +1,170 @@
+﻿@model NidusFront.Models.UsuarioViewModel
+@{
+    ViewData["Title"] = "Meu Perfil";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="/Fazenda/Fazendas" class="text-success">Início</a></li>
+                    <li class="breadcrumb-item active text-white" aria-current="page">Configurações de Perfil</li>
+                </ol>
+            </nav>
+            <h2 class="titulo-pagina m-0"><i class="bi bi-person-bounding-box me-2"></i> MEU PERFIL</h2>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="edit-card">
+                <form action="/Usuario/SalvarPerfil" method="post" enctype="multipart/form-data" class="text-start">
+
+                    <input type="hidden" name="Id" value="@Model.Id" />
+
+                    <div class="row g-5">
+                        <div class="col-12 col-lg-4 text-center border-end border-secondary border-opacity-25">
+                            <h5 class="text-white mb-4">Foto de Perfil</h5>
+                            <div class="d-flex flex-column align-items-center">
+                                @if (Model.Foto != null && Model.Foto.Length > 0)
+                                {
+                                    var base64 = Convert.ToBase64String(Model.Foto);
+                                    var imgsrc = string.Format("data:image/jpeg;base64,{0}", base64);
+                                    <img src="@imgsrc" class="profile-preview-img shadow mb-3" id="imgPreview" />
+                                }
+                                else
+                                {
+                                    <div class="profile-preview-placeholder shadow mb-3" id="avatarPlaceholder">
+                                        <i class="bi bi-person-fill text-secondary" style="font-size: 4.5rem;"></i>
+                                    </div>
+                                    <img class="profile-preview-img shadow mb-3 d-none" id="imgPreview" />
+                                }
+
+                                <label class="btn btn-sm btn-success mt-3" style="border-radius: 20px;">
+                                    <i class="bi bi-camera-fill me-2"></i> ALTERAR FOTO
+                                    <input type="file" name="FotoFile" id="FotoFile" accept="image/*" class="d-none" onchange="previewImage(event)">
+                                </label>
+                                <p class="text-white opacity-50 small mt-2">Formatos: JPG, PNG. Máx 2MB</p>
+                            </div>
+
+                            <div class="mt-5 p-4 rounded-4 text-start" style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);">
+                                <h6 class="text-warning fw-bold mb-4"><i class="bi bi-shield-lock-fill me-1"></i> Dados de Acesso</h6>
+
+                                <div class="mb-3">
+                                    <label class="small text-light opacity-50 mb-1">CNPJ VINCULADO</label>
+                                    <input type="text" class="form-control bg-transparent border-0 text-white fw-bold p-0 fs-6" value="@(string.IsNullOrEmpty(Model.Cnpj) ? "00000000000000" : Model.Cnpj)" readonly style="cursor: not-allowed;">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="small text-light opacity-50 mb-1">LOGIN (E-MAIL)</label>
+                                    <input type="text" class="form-control bg-transparent border-0 text-white fw-bold p-0 fs-6" value="@Model.Email" readonly style="cursor: not-allowed;">
+                                </div>
+
+                                <hr class="border-secondary border-opacity-50 my-3">
+                                <p class="small text-white opacity-50 mb-0"><i class="bi bi-info-circle me-1"></i> Para alterar o login, senha ou CNPJ, entre em contato com o Administrador.</p>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-8">
+                            <h5 class="text-white border-bottom border-secondary pb-2 mb-4">Informações de Contato</h5>
+                            <div class="row g-4 mb-5">
+                                <div class="col-12">
+                                    <label class="form-label text-success fw-bold">Nome Completo</label>
+                                    <input type="text" name="Nome" class="form-control custom-input" value="@Model.Nome" required>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label text-success fw-bold">Celular / WhatsApp</label>
+                                    <input type="text" name="Celular" class="form-control custom-input" value="@Model.Celular" maxlength="15" required>
+                                </div>
+                            </div>
+
+                            <div class="mt-auto d-flex gap-3 justify-content-end pt-5">
+                                <a href="/Fazenda/Fazendas" class="btn btn-outline-light px-4">CANCELAR</a>
+                                <button type="submit" class="btn btn-success px-5 shadow"><i class="bi bi-floppy-fill me-2"></i> SALVAR PERFIL</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: url('/images/FundoNidus.png') no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
+
+    .titulo-pagina {
+        color: #164710;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .edit-card {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 25px;
+        padding: 45px;
+    }
+
+    .custom-input {
+        background: rgba(0,0,0,0.3) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .btn-success {
+        background-color: #164710 !important;
+        border: none !important;
+        font-weight: 600;
+    }
+
+        .btn-success:hover {
+            background-color: #1e5c15 !important;
+        }
+
+    .profile-preview-img {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #28a745;
+    }
+
+    .profile-preview-placeholder {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        border: 3px solid rgba(255,255,255,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<script>
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            var output = document.getElementById('imgPreview');
+            var placeholder = document.getElementById('avatarPlaceholder');
+            output.src = reader.result;
+            output.classList.remove('d-none');
+            if (placeholder) placeholder.classList.add('d-none');
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
